@@ -18,6 +18,7 @@ class SlackService {
         const result = await this.client.chat.postMessage({
             channel: this.channelId,
             text: message,
+            link_names: true,
         });
 
         logger.info('Posting work log report to slack', { result });
