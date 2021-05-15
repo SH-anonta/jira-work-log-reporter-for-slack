@@ -1,14 +1,13 @@
 require('dotenv').config({ path: '../.env'});
 const jiraService = require('./services/jira-service');
+const slackService = require("./services/slack-service");
 
-async function  doWork() {
-    try {
-        const totalWorkDuration = await jiraService.getWorkLogDurationToday();
-
-        console.log('work duration', totalWorkDuration);
-    } catch(e) {
-        console.error(e);
-    }
+async function  main() {
+    const mentionUserName = process.env.SLACK_TARGET_USER_NAME;
+    const totalWorkDuration = await jiraService.getWorkLogDurationToday();
+    await slackService.sendMessageToChannel(`${mentionUserName} has logged ${totalWorkDuration} hours of work today`);
 }
 
-doWork();
+main().catch(err => {
+    console.error(err);
+});

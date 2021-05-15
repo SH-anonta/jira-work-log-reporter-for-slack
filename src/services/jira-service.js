@@ -49,7 +49,7 @@ class JiraService {
     }
 
     async getWorkLogDurationToday() {
-        const sinceTime = moment().subtract(10, 'days').startOf('day');
+        const sinceTime = moment().startOf('day');
 
         const targetEmailAddress = process.env.JIRA_TARGET_USER_EMAIL;
         const workLogs = await this.getWorkLogsOfToday(sinceTime);
