@@ -1,5 +1,5 @@
-const { WebClient, LogLevel } = require("@slack/web-api");
-const logger = require("../utility/logger");
+const { WebClient, LogLevel } = require('@slack/web-api');
+const logger = require('../utility/logger');
 
 class SlackService {
     constructor() {
