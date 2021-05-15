@@ -1,4 +1,5 @@
 const { WebClient, LogLevel } = require("@slack/web-api");
+const logger = require("../utility/logger");
 
 class SlackService {
     constructor() {
@@ -9,15 +10,17 @@ class SlackService {
     setupSlackClient() {
         const token = process.env.SLACK_OAUTH_TOKEN;
         this.client = new WebClient(token, {
-            logLevel: LogLevel.DEBUG
+            logLevel: LogLevel.ERROR,
         });
     }
 
     async sendMessageToChannel(message) {
-        await this.client.chat.postMessage({
+        const result = await this.client.chat.postMessage({
             channel: this.channelId,
             text: message,
         });
+
+        logger.info('Posting work log report to slack', { result });
     }
 }
 

@@ -1,6 +1,7 @@
 require('dotenv').config({ path: '../.env'});
 const jiraService = require('./services/jira-service');
 const slackService = require("./services/slack-service");
+const logger = require("./utility/logger");
 
 async function  main() {
     const mentionUserName = process.env.SLACK_TARGET_USER_NAME;
@@ -9,5 +10,5 @@ async function  main() {
 }
 
 main().catch(err => {
-    console.error(err);
+    logger.error(err);
 });

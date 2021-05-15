@@ -1,5 +1,6 @@
 const moment = require('moment');
 const axios = require('axios');
+const logger = require('../utility/logger');
 
 class JiraService {
     constructor() {
@@ -49,6 +50,8 @@ class JiraService {
     }
 
     async getWorkLogDurationToday() {
+        logger.info('Fetching JIRA logs');
+
         const sinceTime = moment().startOf('day');
 
         const targetEmailAddress = process.env.JIRA_TARGET_USER_EMAIL;
