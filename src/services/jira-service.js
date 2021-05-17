@@ -32,7 +32,7 @@ class JiraService {
         return updatedWorkLogsResponse.data.values.map(workLog => workLog.worklogId);
     }
 
-    async getWorkLogsOfToday(sinceTime) {
+    async getWorkLogsUpdatedToday(sinceTime) {
         const workLogIds = await this.getWorkIdsOfWorkLogsUpdatedSince(sinceTime);
 
         const response = await this.axios.post('/rest/api/3/worklog/list', {
@@ -55,10 +55,10 @@ class JiraService {
         const sinceTime = moment().startOf('day');
 
         const targetEmailAddress = process.env.JIRA_TARGET_USER_EMAIL;
-        const workLogs = await this.getWorkLogsOfToday(sinceTime);
+        const workLogs = await this.getWorkLogsUpdatedToday(sinceTime);
 
         const filteredWorkLogs = workLogs.filter(
-            log => log.author.emailAddress === targetEmailAddress && moment(log.created).isAfter(sinceTime)
+            log => log.author.emailAddress === targetEmailAddress && moment(log.started).isAfter(sinceTime)
         );
 
         const totalDurationSeconds = filteredWorkLogs.reduce((accu, current) => accu + current.duration, 0);
