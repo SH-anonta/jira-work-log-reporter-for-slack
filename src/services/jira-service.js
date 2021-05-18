@@ -43,22 +43,23 @@ class JiraService {
             id: log.id,
             issueId: log.issueId,
             author: log.author,
+            started: moment(log.started),
             duration: log.timeSpentSeconds,
         }));
 
         return workLogs;
     }
 
-    async getWorkLogDurationToday() {
+    async getWorkLogDurationBetweenDates(startDate, endDate) {
         logger.info('Fetching JIRA logs');
 
-        const sinceTime = moment().startOf('day');
-
         const targetEmailAddress = process.env.JIRA_TARGET_USER_EMAIL;
-        const workLogs = await this.getWorkLogsUpdatedToday(sinceTime);
+        const workLogs = await this.getWorkLogsUpdatedToday(startDate);
 
         const filteredWorkLogs = workLogs.filter(
-            log => log.author.emailAddress === targetEmailAddress && moment(log.started).isAfter(sinceTime)
+            log => log.author.emailAddress === targetEmailAddress
+                && log.started.isSameOrAfter(startDate)
+                && log.started.isBefore(endDate)
         );
 
         const totalDurationSeconds = filteredWorkLogs.reduce((accu, current) => accu + current.duration, 0);
