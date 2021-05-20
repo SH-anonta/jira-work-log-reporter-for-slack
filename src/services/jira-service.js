@@ -64,7 +64,10 @@ class JiraService {
 
         const totalDurationSeconds = filteredWorkLogs.reduce((accu, current) => accu + current.duration, 0);
 
-        return totalDurationSeconds / (60 * 60);
+        const secondsPerHours = 60 * 60;
+        const totalDurationsHours = (totalDurationSeconds / secondsPerHours);
+
+        return totalDurationsHours.toFixed(2);
     }
 
 }
