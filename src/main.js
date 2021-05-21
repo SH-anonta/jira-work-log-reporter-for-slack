@@ -18,11 +18,12 @@ async function  reportWorkLogHours() {
     const mentionUserId = process.env.SLACK_TARGET_USER_MEMBER_ID;
 
     const today = moment().startOf('day');
+    const tomorrow = today.clone().add(1, 'day');
     let totalWorkDuration = null
 
     switch (reportType) {
         case 'today':
-            totalWorkDuration = await jiraService.getWorkLogDurationBetweenDates(today);
+            totalWorkDuration = await jiraService.getWorkLogDurationBetweenDates(today, tomorrow);
             await slackService.sendMessageToChannel(`<@${mentionUserId}> has logged ${totalWorkDuration} hours of work today.`);
             break;
         case 'yesterday':
@@ -37,6 +38,17 @@ async function  reportWorkLogHours() {
             totalWorkDuration = await jiraService.getWorkLogDurationBetweenDates(startOfWeek, endOfWeek);
 
             await slackService.sendMessageToChannel(`<@${mentionUserId}> has logged ${totalWorkDuration} hours of work this week.`);
+            break;
+        case 'today-issue-changes':
+            today.subtract(1, 'day');
+            tomorrow.subtract(1, 'day');
+            const issues = await jiraService.getIssuesUpdatedOrCreatedBetweenDates(today, tomorrow);
+            const issueLinkListItems = issues.map((issue, idx) => `${idx+1}. <${issue.link}|${issue.key}:${issue.title}>`);
+
+            let issueChangesSummary = `<@${mentionUserId}> has updated the following issues today:\n\n`;
+            issueChangesSummary += issueLinkListItems.join('\n');
+
+            await slackService.sendMessageToChannel(issueChangesSummary);
             break;
         default:
             throw Error(`Invalid report type: ${reportType}`);

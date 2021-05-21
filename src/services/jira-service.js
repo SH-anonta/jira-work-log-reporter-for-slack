@@ -12,7 +12,7 @@ class JiraService {
         const email = process.env.JIRA_ACCESS_EMAIL;
 
         return axios.create({
-            baseURL: 'https://practicebynumbers.atlassian.net',
+            baseURL: process.env.JIRA_DOMAIN,
             headers: {
                 'Accept': 'application/json',
                 'Authorization': `Basic ${Buffer.from(
@@ -68,6 +68,42 @@ class JiraService {
         const totalDurationsHours = (totalDurationSeconds / secondsPerHours);
 
         return totalDurationsHours.toFixed(2);
+    }
+
+    async jqlSearchIssues(query) {
+        const response = await this.axios.post('/rest/api/3/search', {
+            jql: query,
+        });
+
+        return response.data;
+    }
+
+    async getIssuesUpdatedOrCreatedBetweenDates(startDate, endDate) {
+        const DATE_FORMAT = 'YYYY-MM-DD';
+        const startDateStr = startDate.format(DATE_FORMAT);
+        const endDateStr = endDate.format(DATE_FORMAT);
+
+        const targetUserId = process.env.JIRA_TARGET_USER_ID
+        const query = `assignee = ${targetUserId} 
+        and (
+            (updatedDate >= '${startDateStr}' AND updatedDate < ${endDateStr}) 
+            or (createdDate >= '${startDateStr}' AND createdDate < ${endDateStr})
+        ) 
+        order by updatedDate`;
+
+        const results = await jiraService.jqlSearchIssues(query);
+
+        const issues = results.issues.map(issue => ({
+            title: issue.fields.summary,
+            createdAt: moment(issue.fields.created),
+            updatedAt: moment(issue.fields.updated),
+            status: issue.fields.status.name,
+            priority: issue.fields.priority.name,
+            key: issue.key,
+            link: `${process.env.JIRA_DOMAIN}/browse/${issue.key}`,
+        }));
+
+        return issues;
     }
 
 }
