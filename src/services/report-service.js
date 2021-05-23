@@ -4,7 +4,7 @@ const slackService = require('./slack-service');
 
 class ReportService {
     constructor() {
-        this.mentionUserId = process.env.SLACK_TARGET_USER_MEMBER_ID;
+        this.slackUserId = process.env.SLACK_TARGET_USER_MEMBER_ID;
     }
 
     async sendTodayWorkLogsReport() {
@@ -13,7 +13,7 @@ class ReportService {
 
         const totalWorkDuration = await jiraService.getWorkLogDurationBetweenDates(today, tomorrow);
 
-        await slackService.sendMessageToChannel(`<@${this.mentionUserId}> has logged ${totalWorkDuration} hours of work today.`);
+        await slackService.sendMessageToChannel(`<@${this.slackUserId}> has logged ${totalWorkDuration} hours of work today.`);
     }
 
     async sendYesterdayWorkLogsReport() {
@@ -22,7 +22,7 @@ class ReportService {
 
         const totalWorkDuration = await jiraService.getWorkLogDurationBetweenDates(yesterday, today);
 
-        await slackService.sendMessageToChannel(`<@${this.mentionUserId}> logged ${totalWorkDuration} hours of work yesterday.`);
+        await slackService.sendMessageToChannel(`<@${this.slackUserId}> logged ${totalWorkDuration} hours of work yesterday.`);
     }
 
     async sendCurrentWeekWorkLogsReport() {
@@ -32,7 +32,7 @@ class ReportService {
 
         const totalWorkDuration = await jiraService.getWorkLogDurationBetweenDates(startOfWeek, endOfWeek);
 
-        await slackService.sendMessageToChannel(`<@${this.mentionUserId}> has logged ${totalWorkDuration} hours of work this week.`);
+        await slackService.sendMessageToChannel(`<@${this.slackUserId}> has logged ${totalWorkDuration} hours of work this week.`);
     }
 
     async todayIssueUpdatesSummaryReport() {
@@ -41,15 +41,19 @@ class ReportService {
 
         const issues = await jiraService.getIssuesUpdatedOrCreatedBetweenDates(today, tomorrow);
 
-        const issueLinkListItems = issues.map((issue, idx) => `${idx+1}. <${issue.link}|${issue.key}:${issue.title}>`);
-        let issueChangesSummary = `<@${this.mentionUserId}> has updated the following issues today:\n\n`;
+        let issueLinkListItems = issues.map((issue, idx) => `${idx+1}. ${this.createSummaryDescriptionOfIssue(issue, idx)}`);
+        let issueChangesSummary = `<@${this.slackUserId}> has updated the following issues today:\n\n`;
         issueChangesSummary += issueLinkListItems.join('\n');
 
         if (issues.length < 1) {
-            issueChangesSummary = `<@${this.mentionUserId}> did not update any issue today`;
+            issueChangesSummary = `<@${this.slackUserId}> did not update any issue today`;
         }
 
         await slackService.sendMessageToChannel(issueChangesSummary);
+    }
+
+    createSummaryDescriptionOfIssue(issue) {
+        return `<${issue.link}|${issue.key}:${issue.title}> (${issue.priority} priority, ${issue.status})`;
     }
 }
 
