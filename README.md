@@ -1,5 +1,5 @@
 # Introduction
-This is a simple program that gets the logged work hours of a JIRA user and reports it on a Slack channels during the specified time of every weekday.
+This is a simple program that gets the logged work hours of a user in JIRA and posts it on a Slack channel at a specified time for every weekday.
 
 ## Report Types
 1. `today` Total hours logged today
@@ -10,4 +10,4 @@ This is a simple program that gets the logged work hours of a JIRA user and repo
 ## Setup Guide
 1. Create a `.env` file based on `.env.simple`
 2. Run `main.js` with the `report-type` option. E.g. `node main.js report-type=today` will post today's report
-3. User a task scheduler to execute these commands when you need them
+3. Use a task scheduler to execute these commands when you need them
